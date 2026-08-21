@@ -20,6 +20,37 @@ export type AppConfigRow = {
   updated_at: string
 }
 
+export const TOOL_STATUSES = ['active', 'beta', 'maintenance', 'coming_soon', 'archived'] as const
+export type ToolStatus = (typeof TOOL_STATUSES)[number]
+
+export const ACCENT_KEYS = ['orange', 'green', 'navy', 'yellow', 'sky', 'pink'] as const
+export type AccentKey = (typeof ACCENT_KEYS)[number]
+
+export type Category = {
+  id: string
+  name: string
+  slug: string
+  display_order: number
+  active: boolean
+}
+
+export type Tool = {
+  id: string
+  name: string
+  category_id: string | null
+  description: string | null
+  target_url: string
+  icon: string | null
+  accent: AccentKey
+  status: ToolStatus
+  tags: string[]
+  release_date: string | null
+  opens: number
+}
+
+/** Tool yang sudah dipasangkan dengan kategorinya untuk keperluan tampilan. */
+export type ToolWithCategory = Tool & { category: Category | null }
+
 /** Nilai `app_config.key = 'branding'`. Semua identitas brand berasal dari sini. */
 export type Branding = {
   product_name: string

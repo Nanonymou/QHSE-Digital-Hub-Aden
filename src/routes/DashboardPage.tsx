@@ -1,8 +1,7 @@
-import { LayoutGrid } from 'lucide-react'
-import { EmptyState } from '@/components/state/EmptyState'
 import { ErrorState } from '@/components/state/ErrorState'
 import { FadeIn } from '@/components/motion/FadeIn'
 import { useAuth } from '@/features/auth/useAuth'
+import { CatalogSection } from '@/features/catalog/CatalogSection'
 import { useAppConfig } from '@/features/config/useAppConfig'
 
 export function DashboardPage() {
@@ -37,12 +36,9 @@ export function DashboardPage() {
         </FadeIn>
       ) : null}
 
-      <FadeIn delay={0.14}>
-        <EmptyState
-          icon={<LayoutGrid aria-hidden className="size-6" />}
-          title="Katalog tool belum aktif"
-          description="Fondasi hub sudah berdiri: tema, sesi, dan hak akses. Kartu tool QHSE menyusul pada Phase 2 setelah tabel tools dan categories dibuat."
-        />
+      <FadeIn delay={0.14} className="flex flex-col gap-4">
+        <h2 className="text-xl">Katalog tool</h2>
+        <CatalogSection />
       </FadeIn>
     </div>
   )
