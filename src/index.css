@@ -1,0 +1,54 @@
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: rgb(var(--line) / 0.12);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg font-sans text-base text-text antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04';
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-medium tracking-tight;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+    --tw-ring-offset-color: rgb(var(--bg));
+  }
+
+  ::selection {
+    background-color: rgb(var(--primary) / 0.24);
+  }
+}
+
+@layer components {
+  /* Hairline pembatas yang mengikuti tema, dipakai ulang oleh shell & kartu. */
+  .border-hairline {
+    border-color: rgb(var(--line) / 0.12);
+  }
+}
+
+/* CLAUDE.md §4 — reduced motion adalah kualitas floor, bukan opsi. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,77 @@
+/*
+  Design token ADEN QHSE DIGITAL HUB.
+  Sumber nilai: PROJECT.md (§ Palet — DIKONFIRMASI).
+  Satu set token, dua tema. Komponen TIDAK PERNAH memakai hex langsung.
+  Format nilai: channel RGB dipisah spasi agar bisa dipakai `rgb(var(--x) / <alpha>)`.
+*/
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* base warm-light */
+  --bg: 251 247 244; /* #FBF7F4 cream hangat */
+  --surface: 255 255 255; /* #FFFFFF */
+  --surface-2: 245 239 234; /* #F5EFEA */
+  --line: 28 20 16; /* dipakai via /10 opacity */
+  --shadow: 60 38 24;
+  --text: 28 20 16; /* #1C1410 */
+  --text-muted: 92 78 68; /* #5C4E44 */
+  --text-subtle: 107 91 80; /* #6B5B50 — dinaikkan agar label kecil lolos AA */
+
+  /* PRIMARY — oren gelap (identitas) */
+  --primary: 234 88 12; /* #EA580C */
+  --primary-deep: 194 65 11; /* #C2410C — wajib untuk tombol berteks */
+  --primary-hover: 154 52 18; /* #9A3412 — light: hover menggelap */
+  --primary-contrast: 255 255 255;
+
+  /* status */
+  --ok: 22 101 52; /* #166534 — digelapkan agar badge 12px lolos AA di tema terang */
+  --warn: 133 77 14; /* #854D0E */
+  --danger: 185 28 28; /* #B91C1C */
+  --info: 7 89 133; /* #075985 */
+
+  --ring: 234 88 12;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* base warm-dark */
+  --bg: 20 13 10; /* #140D0A */
+  --surface: 31 23 18; /* #1F1712 */
+  --surface-2: 42 32 26; /* #2A201A */
+  --line: 255 255 255; /* dipakai via /8 opacity */
+  --shadow: 0 0 0;
+  --text: 245 239 234; /* #F5EFEA */
+  --text-muted: 184 169 158; /* #B8A99E */
+  --text-subtle: 154 140 129; /* #9A8C81 — dinaikkan agar label kecil lolos AA */
+
+  --primary: 234 88 12; /* #EA580C */
+  --primary-deep: 194 65 11; /* #C2410C */
+  --primary-hover: 249 115 22; /* #F97316 — dark: hover mencerah */
+  --primary-contrast: 255 255 255;
+
+  --ok: 34 197 94; /* #22C55E */
+  --warn: 250 204 21; /* #FACC15 */
+  --danger: 239 68 68; /* #EF4444 */
+  --info: 56 189 248; /* #38BDF8 */
+
+  --ring: 249 115 22;
+}
+
+/* Accent tokens (data-driven; tool & kategori memilih SATU key, bukan hex bebas) */
+:root {
+  --accent-orange: 249 115 22; /* #F97316 */
+  --accent-green: 34 197 94; /* #22C55E */
+  --accent-navy: 36 64 142; /* #24408E */
+  --accent-yellow: 250 204 21; /* #FACC15 */
+  --accent-sky: 56 189 248; /* #38BDF8 */
+  --accent-pink: 236 72 153; /* #EC4899 */
+
+  --radius: 12px;
+
+  --font-display: 'Space Grotesk';
+  --font-body: 'Inter';
+  --font-mono: 'JetBrains Mono';
+}
