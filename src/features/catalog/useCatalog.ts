@@ -56,3 +56,6 @@ export function useCatalog() {
 
   return { loading, tools: data.tools, categories: data.categories, error, reload, launchTool }
 }
+
+/** Satu hasil `useCatalog` dipakai bersama oleh KPI, katalog, dan panel admin — satu fetch saja. */
+export type CatalogState = ReturnType<typeof useCatalog>

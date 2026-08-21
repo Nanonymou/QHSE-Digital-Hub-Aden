@@ -1,12 +1,18 @@
 import { ErrorState } from '@/components/state/ErrorState'
 import { FadeIn } from '@/components/motion/FadeIn'
-import { useAuth } from '@/features/auth/useAuth'
+import { AdminInsights } from '@/features/analytics/AdminInsights'
+import { KpiRow } from '@/features/analytics/KpiRow'
+import { useAuth, usePermission } from '@/features/auth/useAuth'
 import { CatalogSection } from '@/features/catalog/CatalogSection'
+import { useCatalog } from '@/features/catalog/useCatalog'
 import { useAppConfig } from '@/features/config/useAppConfig'
 
 export function DashboardPage() {
   const { branding, error: configError } = useAppConfig()
   const { status, profileError } = useAuth()
+  // Satu fetch katalog dipakai bersama KPI, grid, dan panel admin.
+  const catalog = useCatalog()
+  const canSeeUsageDetail = usePermission('catalog.write')
 
   return (
     <div className="flex flex-col gap-10">
@@ -36,10 +42,22 @@ export function DashboardPage() {
         </FadeIn>
       ) : null}
 
+      {!catalog.loading && !catalog.error ? (
+        <FadeIn delay={0.1}>
+          <KpiRow tools={catalog.tools} categories={catalog.categories} />
+        </FadeIn>
+      ) : null}
+
       <FadeIn delay={0.14} className="flex flex-col gap-4">
         <h2 className="text-xl">Katalog tool</h2>
-        <CatalogSection />
+        <CatalogSection catalog={catalog} />
       </FadeIn>
+
+      {canSeeUsageDetail && !catalog.loading && !catalog.error ? (
+        <FadeIn delay={0.18}>
+          <AdminInsights tools={catalog.tools} />
+        </FadeIn>
+      ) : null}
     </div>
   )
 }
