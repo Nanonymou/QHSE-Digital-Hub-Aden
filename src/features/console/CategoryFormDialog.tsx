@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import type { TranslationKey } from '@/features/i18n/i18n-context'
+import { useI18n } from '@/features/i18n/useI18n'
 import type { Category } from '@/types/database'
 import { createCategory, slugify, updateCategory, type CategoryInput } from './console-api'
 
@@ -22,8 +24,9 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
     active: category?.active ?? true,
   })
   const [slugTouched, setSlugTouched] = useState(Boolean(category))
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<TranslationKey | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const { t } = useI18n()
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -31,15 +34,15 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
 
     const name = form.name.trim()
     const slug = (slugTouched ? form.slug : slugify(name)).trim()
-    if (!name) return setError('Nama kategori wajib diisi.')
-    if (!slug) return setError('Slug wajib diisi — dipakai sebagai identitas kategori di URL dan filter.')
+    if (!name) return setError('category.form.error.name')
+    if (!slug) return setError('category.form.error.slug')
 
     setSubmitting(true)
     const payload: CategoryInput = { ...form, name, slug }
     const result = category ? await updateCategory(category.id, payload) : await createCategory(payload)
     setSubmitting(false)
 
-    if (!result.ok) return setError(result.message)
+    if (!result.ok) return setError(`error.write.${result.code}`)
     await onSaved()
     onClose()
   }
@@ -52,11 +55,13 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
       }}
     >
       <DialogContent className="max-w-md">
-        <DialogTitle>{category ? `Ubah ${category.name}` : 'Tambah kategori'}</DialogTitle>
+        <DialogTitle>
+          {category ? t('category.edit', { name: category.name }) : t('category.add')}
+        </DialogTitle>
 
         <form className="flex flex-col gap-4" onSubmit={(event) => void handleSubmit(event)} noValidate>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="category-name">Nama</Label>
+            <Label htmlFor="category-name">{t('category.form.name')}</Label>
             <Input
               id="category-name"
               value={form.name}
@@ -68,18 +73,21 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
                   slug: slugTouched ? current.slug : slugify(name),
                 }))
               }}
-              placeholder="mis. Inspection"
+              placeholder={t('category.form.namePlaceholder')}
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="category-slug">Slug</Label>
+            <Label htmlFor="category-slug">{t('category.form.slug')}</Label>
             <Input
               id="category-slug"
               value={form.slug}
               onChange={(event) => {
                 setSlugTouched(true)
-                setForm((current) => ({ ...current, slug: event.target.value }))
+                setForm((current) => ({
+                  ...current,
+                  slug: event.target.value,
+                }))
               }}
               className="font-mono"
             />
@@ -87,14 +95,17 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
 
           <div className="flex items-end gap-4">
             <div className="flex flex-1 flex-col gap-2">
-              <Label htmlFor="category-order">Urutan</Label>
+              <Label htmlFor="category-order">{t('category.form.order')}</Label>
               <Input
                 id="category-order"
                 type="number"
                 inputMode="numeric"
                 value={form.display_order}
                 onChange={(event) =>
-                  setForm((current) => ({ ...current, display_order: Number(event.target.value) || 0 }))
+                  setForm((current) => ({
+                    ...current,
+                    display_order: Number(event.target.value) || 0,
+                  }))
                 }
               />
             </div>
@@ -103,21 +114,26 @@ export function CategoryFormDialog({ category, onClose, onSaved }: CategoryFormD
               <input
                 type="checkbox"
                 checked={form.active}
-                onChange={(event) => setForm((current) => ({ ...current, active: event.target.checked }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    active: event.target.checked,
+                  }))
+                }
                 className="size-4 accent-[rgb(var(--primary))]"
               />
-              Aktif
+              {t('category.form.active')}
             </label>
           </div>
 
-          {error ? <ErrorState title="Belum bisa disimpan" description={error} /> : null}
+          {error ? <ErrorState title={t('common.notSaved')} description={t(error)} /> : null}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="outline" size="sm" disabled={submitting} onClick={onClose}>
-              Batal
+              {t('common.cancel')}
             </Button>
             <Button type="submit" size="sm" loading={submitting}>
-              {category ? 'Simpan perubahan' : 'Tambahkan kategori'}
+              {category ? t('common.save') : t('category.save')}
             </Button>
           </div>
         </form>

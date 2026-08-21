@@ -6,9 +6,11 @@ export type CatalogData = {
   categories: Category[]
 }
 
+export type CatalogErrorCode = 'load_failed'
+
 export type CatalogResult = {
   data: CatalogData
-  error: string | null
+  error: CatalogErrorCode | null
 }
 
 const EMPTY: CatalogData = { tools: [], categories: [] }
@@ -24,12 +26,14 @@ export async function fetchCatalog(): Promise<CatalogResult> {
     supabase.from('categories').select('id, name, slug, display_order, active').order('display_order'),
     supabase
       .from('tools')
-      .select('id, name, category_id, description, target_url, icon, accent, status, tags, release_date, opens')
+      .select(
+        'id, name, category_id, description, target_url, icon, accent, status, tags, release_date, opens',
+      )
       .order('name'),
   ])
 
   if (categoryQuery.error || toolQuery.error) {
-    return { data: EMPTY, error: 'Katalog tidak bisa dimuat. Periksa koneksi, lalu muat ulang halaman.' }
+    return { data: EMPTY, error: 'load_failed' }
   }
 
   const categories = (categoryQuery.data ?? []) as Category[]

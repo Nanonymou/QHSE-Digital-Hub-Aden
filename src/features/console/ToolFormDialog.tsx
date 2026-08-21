@@ -9,7 +9,16 @@ import { Textarea } from '@/components/ui/textarea'
 import { isSafeToolUrl } from '@/features/catalog/catalog-api'
 import { STATUS_META } from '@/features/catalog/status'
 import { TOOL_ICON_NAMES } from '@/features/catalog/tool-icons'
-import { ACCENT_KEYS, TOOL_STATUSES, type AccentKey, type Category, type ToolStatus, type ToolWithCategory } from '@/types/database'
+import type { TranslationKey } from '@/features/i18n/i18n-context'
+import { useI18n } from '@/features/i18n/useI18n'
+import {
+  ACCENT_KEYS,
+  TOOL_STATUSES,
+  type AccentKey,
+  type Category,
+  type ToolStatus,
+  type ToolWithCategory,
+} from '@/types/database'
 import { createTool, updateTool, type ToolInput } from './console-api'
 
 type ToolFormDialogProps = {
@@ -21,12 +30,14 @@ type ToolFormDialogProps = {
 }
 
 // Archived bukan pilihan form — status itu hasil aksi "Arsipkan" (features/03).
-const EDITABLE_STATUSES = TOOL_STATUSES.filter((status): status is Exclude<ToolStatus, 'archived'> => status !== 'archived')
+const EDITABLE_STATUSES = TOOL_STATUSES.filter(
+  (status): status is Exclude<ToolStatus, 'archived'> => status !== 'archived',
+)
 
 function initialInput(tool: ToolWithCategory | null, categories: Category[]): ToolInput {
   return {
     name: tool?.name ?? '',
-    category_id: tool?.category_id ?? (categories[0]?.id ?? null),
+    category_id: tool?.category_id ?? categories[0]?.id ?? null,
     description: tool?.description ?? '',
     target_url: tool?.target_url ?? 'https://',
     icon: tool?.icon ?? TOOL_ICON_NAMES[0],
@@ -40,8 +51,9 @@ function initialInput(tool: ToolWithCategory | null, categories: Category[]): To
 export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormDialogProps) {
   const [form, setForm] = useState<ToolInput>(() => initialInput(tool, categories))
   const [tagsText, setTagsText] = useState(tool?.tags.join(', ') ?? '')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<TranslationKey | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const { t } = useI18n()
 
   const set = <K extends keyof ToolInput>(key: K, value: ToolInput[K]) =>
     setForm((current) => ({ ...current, [key]: value }))
@@ -52,9 +64,9 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
 
     // Validasi client; server memvalidasi ulang lewat constraint + RLS.
     const name = form.name.trim()
-    if (!name) return setError('Nama tool wajib diisi.')
-    if (!form.category_id) return setError('Pilih kategori dari master kategori.')
-    if (!isSafeToolUrl(form.target_url.trim())) return setError('Alamat tool harus URL lengkap yang diawali https://.')
+    if (!name) return setError('console.form.error.name')
+    if (!form.category_id) return setError('console.form.error.category')
+    if (!isSafeToolUrl(form.target_url.trim())) return setError('console.form.error.url')
 
     const payload: ToolInput = {
       ...form,
@@ -72,7 +84,7 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
     const result = tool ? await updateTool(tool.id, payload) : await createTool(payload)
     setSubmitting(false)
 
-    if (!result.ok) return setError(result.message)
+    if (!result.ok) return setError(`error.write.${result.code}`)
     await onSaved()
     onClose()
   }
@@ -85,29 +97,29 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
       }}
     >
       <DialogContent className="max-h-[90dvh] max-w-2xl overflow-y-auto">
-        <DialogTitle>{tool ? `Ubah ${tool.name}` : 'Tambah tool'}</DialogTitle>
+        <DialogTitle>{tool ? t('console.editTool', { name: tool.name }) : t('console.newTool')}</DialogTitle>
 
         <form className="flex flex-col gap-4" onSubmit={(event) => void handleSubmit(event)} noValidate>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2 sm:col-span-2">
-              <Label htmlFor="tool-name">Nama tool</Label>
+              <Label htmlFor="tool-name">{t('console.form.name')}</Label>
               <Input
                 id="tool-name"
                 value={form.name}
                 onChange={(event) => set('name', event.target.value)}
-                placeholder="mis. Compliance Monitor"
+                placeholder={t('console.form.namePlaceholder')}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-category">Kategori</Label>
+              <Label htmlFor="tool-category">{t('console.form.category')}</Label>
               <Select
                 id="tool-category"
                 value={form.category_id ?? ''}
                 onChange={(event) => set('category_id', event.target.value || null)}
               >
                 <option value="" disabled>
-                  Pilih kategori
+                  {t('console.form.categoryPlaceholder')}
                 </option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -118,7 +130,7 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-status">Status</Label>
+              <Label htmlFor="tool-status">{t('console.form.status')}</Label>
               <Select
                 id="tool-status"
                 value={form.status}
@@ -126,14 +138,14 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
               >
                 {EDITABLE_STATUSES.map((status) => (
                   <option key={status} value={status}>
-                    {STATUS_META[status].label}
+                    {t(STATUS_META[status].labelKey)}
                   </option>
                 ))}
               </Select>
             </div>
 
             <div className="flex flex-col gap-2 sm:col-span-2">
-              <Label htmlFor="tool-url">Alamat tool</Label>
+              <Label htmlFor="tool-url">{t('console.form.url')}</Label>
               <Input
                 id="tool-url"
                 type="url"
@@ -145,17 +157,17 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
             </div>
 
             <div className="flex flex-col gap-2 sm:col-span-2">
-              <Label htmlFor="tool-description">Deskripsi</Label>
+              <Label htmlFor="tool-description">{t('console.form.description')}</Label>
               <Textarea
                 id="tool-description"
                 value={form.description ?? ''}
                 onChange={(event) => set('description', event.target.value)}
-                placeholder="Satu-dua kalimat: tool ini dipakai untuk apa."
+                placeholder={t('console.form.descriptionPlaceholder')}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-icon">Ikon</Label>
+              <Label htmlFor="tool-icon">{t('console.form.icon')}</Label>
               <Select
                 id="tool-icon"
                 value={form.icon ?? ''}
@@ -170,7 +182,7 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-accent">Accent</Label>
+              <Label htmlFor="tool-accent">{t('console.form.accent')}</Label>
               <Select
                 id="tool-accent"
                 value={form.accent}
@@ -185,17 +197,17 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-tags">Tag</Label>
+              <Label htmlFor="tool-tags">{t('console.form.tags')}</Label>
               <Input
                 id="tool-tags"
                 value={tagsText}
                 onChange={(event) => setTagsText(event.target.value)}
-                placeholder="pisahkan dengan koma"
+                placeholder={t('console.form.tagsPlaceholder')}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="tool-release">Tanggal rilis</Label>
+              <Label htmlFor="tool-release">{t('console.form.release')}</Label>
               <Input
                 id="tool-release"
                 type="date"
@@ -205,14 +217,14 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
             </div>
           </div>
 
-          {error ? <ErrorState title="Belum bisa disimpan" description={error} /> : null}
+          {error ? <ErrorState title={t('common.notSaved')} description={t(error)} /> : null}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="outline" size="sm" disabled={submitting} onClick={onClose}>
-              Batal
+              {t('common.cancel')}
             </Button>
             <Button type="submit" size="sm" loading={submitting}>
-              {tool ? 'Simpan perubahan' : 'Tambahkan tool'}
+              {tool ? t('common.save') : t('console.saveTool')}
             </Button>
           </div>
         </form>

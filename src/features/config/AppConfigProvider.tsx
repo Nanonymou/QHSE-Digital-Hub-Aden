@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { AppConfigRow, Branding } from '@/types/database'
-import { AppConfigContext, type AppConfigContextValue } from './app-config-context'
+import { AppConfigContext, type AppConfigContextValue, type ConfigErrorCode } from './app-config-context'
 import { FALLBACK_BRANDING, parseBranding } from './branding'
 
-type ConfigResult = { config: Record<string, unknown>; error: string | null }
+type ConfigResult = {
+  config: Record<string, unknown>
+  error: ConfigErrorCode | null
+}
 
 /** Fetch murni (tanpa state React) agar bisa dipakai effect maupun tombol muat ulang. */
 async function fetchAppConfig(): Promise<ConfigResult> {
@@ -12,21 +15,21 @@ async function fetchAppConfig(): Promise<ConfigResult> {
 
   const { data, error } = await supabase.from('app_config').select('key, value, updated_at')
   if (error) {
-    return {
-      config: {},
-      error: 'Konfigurasi aplikasi tidak bisa dimuat. Hub tetap jalan dengan tampilan dasar; muat ulang untuk mencoba lagi.',
-    }
+    return { config: {}, error: 'load_failed' }
   }
 
   const rows = (data ?? []) as AppConfigRow[]
-  return { config: Object.fromEntries(rows.map((row) => [row.key, row.value])), error: null }
+  return {
+    config: Object.fromEntries(rows.map((row) => [row.key, row.value])),
+    error: null,
+  }
 }
 
 export function AppConfigProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(Boolean(supabase))
   const [config, setConfig] = useState<Record<string, unknown>>({})
   const [branding, setBranding] = useState<Branding>(FALLBACK_BRANDING)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<ConfigErrorCode | null>(null)
 
   const apply = useCallback((result: ConfigResult) => {
     setConfig(result.config)

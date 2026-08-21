@@ -6,6 +6,7 @@ import { useAuth, usePermission } from '@/features/auth/useAuth'
 import { CatalogSection } from '@/features/catalog/CatalogSection'
 import { useCatalog } from '@/features/catalog/useCatalog'
 import { useAppConfig } from '@/features/config/useAppConfig'
+import { useI18n } from '@/features/i18n/useI18n'
 
 export function DashboardPage() {
   const { branding, error: configError } = useAppConfig()
@@ -13,6 +14,7 @@ export function DashboardPage() {
   // Satu fetch katalog dipakai bersama KPI, grid, dan panel admin.
   const catalog = useCatalog()
   const canSeeUsageDetail = usePermission('catalog.write')
+  const { t } = useI18n()
 
   return (
     <div className="flex flex-col gap-10">
@@ -24,21 +26,21 @@ export function DashboardPage() {
       {status === 'unavailable' ? (
         <FadeIn delay={0.06}>
           <ErrorState
-            title="Supabase belum terhubung"
-            description="Salin .env.example menjadi .env, isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY dari dashboard Supabase, lalu jalankan ulang npm run dev."
+            title={t('error.supabaseMissing.title')}
+            description={t('error.supabaseMissing.body')}
           />
         </FadeIn>
       ) : null}
 
       {configError ? (
         <FadeIn delay={0.06}>
-          <ErrorState title="Konfigurasi tidak termuat" description={configError} />
+          <ErrorState title={t('error.configLoad.title')} description={t('error.configLoad.body')} />
         </FadeIn>
       ) : null}
 
       {profileError ? (
         <FadeIn delay={0.06}>
-          <ErrorState title="Profil akses bermasalah" description={profileError} />
+          <ErrorState title={t('error.profile.title')} description={t(`error.profile.${profileError}`)} />
         </FadeIn>
       ) : null}
 
@@ -49,7 +51,7 @@ export function DashboardPage() {
       ) : null}
 
       <FadeIn delay={0.14} className="flex flex-col gap-4">
-        <h2 className="text-xl">Katalog tool</h2>
+        <h2 className="text-xl">{t('catalog.heading')}</h2>
         <CatalogSection catalog={catalog} />
       </FadeIn>
 

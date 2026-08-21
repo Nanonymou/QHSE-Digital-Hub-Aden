@@ -4,7 +4,10 @@ import { EmptyState } from '@/components/state/EmptyState'
 import { ErrorState } from '@/components/state/ErrorState'
 import { LoadingState } from '@/components/state/LoadingState'
 import { Button } from '@/components/ui/button'
+import type { TranslationKey } from '@/features/i18n/i18n-context'
+import { useI18n } from '@/features/i18n/useI18n'
 import type { ToolWithCategory } from '@/types/database'
+import { STATUS_META } from './status'
 import { CatalogToolbar } from './CatalogToolbar'
 import { ToolDetailDialog } from './ToolDetailDialog'
 import { ToolGrid } from './ToolGrid'
@@ -14,24 +17,30 @@ import { useCatalogFilters } from './useCatalogFilters'
 export function CatalogSection({ catalog }: { catalog: CatalogState }) {
   const { loading, tools, categories, error, reload, launchTool } = catalog
   const filters = useCatalogFilters(tools)
+  const { t } = useI18n()
   const [detailTool, setDetailTool] = useState<ToolWithCategory | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useState<TranslationKey | null>(null)
 
   const handleLaunch = (tool: ToolWithCategory) => {
     const result = launchTool(tool)
-    setNotice(result.ok ? null : (result.message ?? null))
+    if (result.ok) return setNotice(null)
+    setNotice(
+      result.reason === 'invalid_url'
+        ? 'catalog.launchBlocked.invalidUrl'
+        : (STATUS_META[result.status].warningKey ?? 'catalog.launchBlocked.status'),
+    )
   }
 
-  if (loading) return <LoadingState label="Memuat katalog tool" />
+  if (loading) return <LoadingState label={t('catalog.loading')} />
 
   if (error) {
     return (
       <ErrorState
-        title="Katalog tidak termuat"
-        description={error}
+        title={t('error.catalogLoad.title')}
+        description={t('error.catalogLoad.body')}
         action={
           <Button variant="outline" size="sm" onClick={() => void reload()}>
-            Muat ulang katalog
+            {t('catalog.reload')}
           </Button>
         }
       />
@@ -42,8 +51,8 @@ export function CatalogSection({ catalog }: { catalog: CatalogState }) {
     return (
       <EmptyState
         icon={<LayoutGrid aria-hidden className="size-6" />}
-        title="Belum ada tool terdaftar"
-        description="Daftarkan tool QHSE pertama lewat Catalog Console, atau tambahkan langsung di Supabase mengikuti contoh pada migration 0002."
+        title={t('catalog.empty.title')}
+        description={t('catalog.empty.body')}
       />
     )
   }
@@ -69,16 +78,16 @@ export function CatalogSection({ catalog }: { catalog: CatalogState }) {
         totalCount={tools.length}
       />
 
-      {notice ? <ErrorState title="Tool belum bisa dibuka" description={notice} /> : null}
+      {notice ? <ErrorState title={t('catalog.launchBlocked.title')} description={t(notice)} /> : null}
 
       {filters.results.length === 0 ? (
         <EmptyState
           icon={<SearchX aria-hidden className="size-6" />}
-          title="Tidak ada tool yang cocok"
-          description="Coba kata kunci yang lebih pendek, pilih kategori lain, atau hapus filter untuk melihat seluruh katalog."
+          title={t('catalog.noResult.title')}
+          description={t('catalog.noResult.body')}
           action={
             <Button variant="outline" size="sm" onClick={filters.reset}>
-              Hapus filter
+              {t('catalog.clearFilter')}
             </Button>
           }
         />

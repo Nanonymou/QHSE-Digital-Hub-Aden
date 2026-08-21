@@ -51,6 +51,21 @@ export type Tool = {
 /** Tool yang sudah dipasangkan dengan kategorinya untuk keperluan tampilan. */
 export type ToolWithCategory = Tool & { category: Category | null }
 
+export type TeamMember = {
+  id: string
+  user_id: string | null
+  full_name: string
+  position: string | null
+  department: string | null
+  photo_url: string | null
+  bio: string | null
+  email: string | null
+  phone: string | null
+  display_order: number
+  active: boolean
+  visible_public: boolean
+}
+
 /** Nilai `app_config.key = 'branding'`. Semua identitas brand berasal dari sini. */
 export type Branding = {
   product_name: string

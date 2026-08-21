@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
+import type { TranslationKey } from '@/features/i18n/i18n-context'
 import { useDebouncedValue } from '@/lib/useDebouncedValue'
 import type { ToolStatus, ToolWithCategory } from '@/types/database'
 
 export const SORT_OPTIONS = [
-  { key: 'name', label: 'Nama (A-Z)' },
-  { key: 'recent', label: 'Terbaru' },
-  { key: 'opens', label: 'Paling sering dibuka' },
-] as const
+  { key: 'name', labelKey: 'catalog.sort.name' },
+  { key: 'recent', labelKey: 'catalog.sort.recent' },
+  { key: 'opens', labelKey: 'catalog.sort.opens' },
+] as const satisfies readonly { key: string; labelKey: TranslationKey }[]
 
 export type SortKey = (typeof SORT_OPTIONS)[number]['key']
 
@@ -56,7 +57,9 @@ export function useCatalogFilters(tools: ToolWithCategory[]) {
         case 'opens':
           return b.opens - a.opens || a.name.localeCompare(b.name, 'id')
         case 'recent':
-          return (b.release_date ?? '').localeCompare(a.release_date ?? '') || a.name.localeCompare(b.name, 'id')
+          return (
+            (b.release_date ?? '').localeCompare(a.release_date ?? '') || a.name.localeCompare(b.name, 'id')
+          )
         default:
           return a.name.localeCompare(b.name, 'id')
       }

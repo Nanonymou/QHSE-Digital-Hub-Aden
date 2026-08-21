@@ -1,6 +1,7 @@
 import { ExternalLink, Info } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/features/i18n/useI18n'
 import { cn } from '@/lib/utils'
 import type { ToolWithCategory } from '@/types/database'
 import { accentStyle } from './accent'
@@ -15,6 +16,7 @@ type ToolCardProps = {
 }
 
 export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
+  const { t } = useI18n()
   const meta = STATUS_META[tool.status]
   const launchable = meta.launchable
 
@@ -24,7 +26,9 @@ export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
       className={cn(
         'group relative flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-hairline bg-surface p-5',
         'shadow-card transition-[transform,box-shadow] duration-micro ease-out-soft',
-        launchable ? 'hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0' : 'opacity-80',
+        launchable
+          ? 'hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0'
+          : 'opacity-80',
       )}
     >
       {/* Garis accent menegas saat hover — satu-satunya dekorasi kartu. */}
@@ -45,13 +49,13 @@ export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
 
       <div className="flex flex-col gap-1">
         <h3 className="text-base font-semibold leading-snug text-text">{tool.name}</h3>
-        <p className="font-mono text-xs text-text-subtle">{tool.category?.name ?? 'Tanpa kategori'}</p>
+        <p className="font-mono text-xs text-text-subtle">{tool.category?.name ?? t('catalog.noCategory')}</p>
       </div>
 
       {tool.description ? (
         <p className="line-clamp-3 flex-1 text-sm text-text-muted">{tool.description}</p>
       ) : (
-        <p className="flex-1 text-sm text-text-subtle">Belum ada deskripsi.</p>
+        <p className="flex-1 text-sm text-text-subtle">{t('catalog.noDescription')}</p>
       )}
 
       {tool.tags.length > 0 ? (
@@ -74,17 +78,17 @@ export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
             onClick={() => onLaunch(tool)}
           >
             <ExternalLink aria-hidden />
-            Buka tool
+            {t('catalog.launch')}
           </Button>
         ) : (
-          <Button size="sm" disabled title={meta.warning ?? undefined}>
-            {meta.label}
+          <Button size="sm" disabled title={meta.warningKey ? t(meta.warningKey) : undefined}>
+            {t(meta.labelKey)}
           </Button>
         )}
 
         <Button variant="ghost" size="sm" className="relative z-10" onClick={() => onDetail(tool)}>
           <Info aria-hidden />
-          Detail
+          {t('catalog.detail')}
         </Button>
       </div>
     </article>

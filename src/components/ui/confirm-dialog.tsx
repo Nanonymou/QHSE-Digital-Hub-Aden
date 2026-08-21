@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/state/ErrorState'
+import { useI18n } from '@/features/i18n/useI18n'
 
 type ConfirmDialogProps = {
   open: boolean
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   onConfirm,
   onOpenChange,
 }: ConfirmDialogProps) {
+  const { t } = useI18n()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,11 +54,11 @@ export function ConfirmDialog({
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>
 
-        {error ? <ErrorState title="Aksi gagal" description={error} /> : null}
+        {error ? <ErrorState title={t('common.actionFailed')} description={error} /> : null}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="outline" size="sm" disabled={busy} onClick={() => onOpenChange(false)}>
-            Batal
+            {t('common.cancel')}
           </Button>
           <Button
             variant={destructive ? 'danger' : 'primary'}

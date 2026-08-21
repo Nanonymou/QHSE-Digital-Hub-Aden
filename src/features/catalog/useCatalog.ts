@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { ToolWithCategory } from '@/types/database'
-import { fetchCatalog, isSafeToolUrl, recordToolOpen, type CatalogData } from './catalog-api'
+import type { ToolStatus, ToolWithCategory } from '@/types/database'
+import {
+  fetchCatalog,
+  isSafeToolUrl,
+  recordToolOpen,
+  type CatalogData,
+  type CatalogErrorCode,
+} from './catalog-api'
 import { STATUS_META } from './status'
 
 const EMPTY: CatalogData = { tools: [], categories: [] }
 
+/** Alasan gagal dikembalikan sebagai kode; pesannya dirakit komponen lewat kamus. */
+export type LaunchResult =
+  | { ok: true }
+  | { ok: false; reason: 'status'; status: ToolStatus }
+  | { ok: false; reason: 'invalid_url' }
+
 export function useCatalog() {
   const [loading, setLoading] = useState(Boolean(supabase))
   const [data, setData] = useState<CatalogData>(EMPTY)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<CatalogErrorCode | null>(null)
 
   const apply = useCallback((result: Awaited<ReturnType<typeof fetchCatalog>>) => {
     setData(result.data)
@@ -37,12 +49,12 @@ export function useCatalog() {
    * atau lambat tidak boleh menahan launch, dan tab dibuka pada gestur user
    * agar tidak diblokir browser.
    */
-  const launchTool = useCallback((tool: ToolWithCategory): { ok: boolean; message?: string } => {
+  const launchTool = useCallback((tool: ToolWithCategory): LaunchResult => {
     if (!STATUS_META[tool.status].launchable) {
-      return { ok: false, message: STATUS_META[tool.status].warning ?? 'Tool ini belum bisa dibuka.' }
+      return { ok: false, reason: 'status', status: tool.status }
     }
     if (!isSafeToolUrl(tool.target_url)) {
-      return { ok: false, message: 'Alamat tool tidak valid (harus https). Minta admin memperbaikinya.' }
+      return { ok: false, reason: 'invalid_url' }
     }
 
     window.open(tool.target_url, '_blank', 'noopener,noreferrer')
@@ -54,7 +66,14 @@ export function useCatalog() {
     return { ok: true }
   }, [])
 
-  return { loading, tools: data.tools, categories: data.categories, error, reload, launchTool }
+  return {
+    loading,
+    tools: data.tools,
+    categories: data.categories,
+    error,
+    reload,
+    launchTool,
+  }
 }
 
 /** Satu hasil `useCatalog` dipakai bersama oleh KPI, katalog, dan panel admin — satu fetch saja. */

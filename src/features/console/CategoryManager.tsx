@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/state/EmptyState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { useI18n } from '@/features/i18n/useI18n'
 import type { Category, ToolWithCategory } from '@/types/database'
 import { CategoryFormDialog } from './CategoryFormDialog'
 import { deleteCategory } from './console-api'
@@ -15,6 +16,7 @@ type CategoryManagerProps = {
 }
 
 export function CategoryManager({ categories, tools, onChanged }: CategoryManagerProps) {
+  const { t } = useI18n()
   const [editing, setEditing] = useState<Category | null>(null)
   const [adding, setAdding] = useState(false)
   const [removing, setRemoving] = useState<Category | null>(null)
@@ -27,20 +29,20 @@ export function CategoryManager({ categories, tools, onChanged }: CategoryManage
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-xl">Kategori</h2>
+        <h2 className="text-xl">{t('category.heading')}</h2>
         <Button size="sm" variant="outline" onClick={() => setAdding(true)}>
           <Plus aria-hidden />
-          Tambah kategori
+          {t('category.add')}
         </Button>
       </div>
 
       {categories.length === 0 ? (
         <EmptyState
-          title="Belum ada kategori"
-          description="Kategori mengelompokkan tool di katalog. Tambahkan satu kategori sebelum mendaftarkan tool pertama."
+          title={t('category.empty.title')}
+          description={t('category.empty.body')}
           action={
             <Button size="sm" onClick={() => setAdding(true)}>
-              Tambah kategori
+              {t('category.add')}
             </Button>
           }
         />
@@ -57,20 +59,25 @@ export function CategoryManager({ categories, tools, onChanged }: CategoryManage
                 <span className="flex-1 text-sm text-text">{category.name}</span>
                 <span className="font-mono text-xs text-text-subtle">{category.slug}</span>
                 <Badge className="border-line/15 bg-surface-elevated font-mono text-text-subtle">
-                  {used} tool
+                  {t('category.toolCount', { count: used })}
                 </Badge>
                 {!category.active ? (
-                  <Badge className="border-warn/40 bg-warn/10 text-warn">Nonaktif</Badge>
+                  <Badge className="border-warn/40 bg-warn/10 text-warn">{t('category.inactive')}</Badge>
                 ) : null}
 
                 <span className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" aria-label={`Ubah ${category.name}`} onClick={() => setEditing(category)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('category.edit', { name: category.name })}
+                    onClick={() => setEditing(category)}
+                  >
                     <Pencil aria-hidden />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Hapus ${category.name}`}
+                    aria-label={t('category.delete', { name: category.name })}
                     onClick={() => setRemoving(category)}
                   >
                     <Trash2 aria-hidden />
@@ -82,20 +89,18 @@ export function CategoryManager({ categories, tools, onChanged }: CategoryManage
         </ul>
       )}
 
-      {adding ? <CategoryFormDialog category={null} onClose={() => setAdding(false)} onSaved={onChanged} /> : null}
+      {adding ? (
+        <CategoryFormDialog category={null} onClose={() => setAdding(false)} onSaved={onChanged} />
+      ) : null}
       {editing ? (
         <CategoryFormDialog category={editing} onClose={() => setEditing(null)} onSaved={onChanged} />
       ) : null}
 
       <ConfirmDialog
         open={Boolean(removing)}
-        title="Hapus kategori ini?"
-        description={
-          removing
-            ? `${removing.name} akan hilang dari master kategori. Kategori yang masih dipakai tool akan ditolak server sampai tool-nya dipindahkan.`
-            : ''
-        }
-        confirmLabel="Hapus kategori"
+        title={t('category.confirmDelete.title')}
+        description={removing ? t('category.confirmDelete.body', { name: removing.name }) : ''}
+        confirmLabel={t('category.confirmDelete.action')}
         destructive
         onOpenChange={(open) => {
           if (!open) setRemoving(null)
@@ -103,7 +108,7 @@ export function CategoryManager({ categories, tools, onChanged }: CategoryManage
         onConfirm={async () => {
           if (!removing) return null
           const result = await deleteCategory(removing.id)
-          if (!result.ok) return result.message
+          if (!result.ok) return t(`error.write.${result.code}`)
           await onChanged()
           return null
         }}

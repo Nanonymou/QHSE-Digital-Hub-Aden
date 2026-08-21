@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { StatusBadge } from '@/features/catalog/StatusBadge'
 import { ToolIcon } from '@/features/catalog/ToolIcon'
 import { usePermission } from '@/features/auth/useAuth'
+import { useI18n } from '@/features/i18n/useI18n'
 import type { Category, ToolWithCategory } from '@/types/database'
 import { deleteTool, setToolStatus } from './console-api'
 import { ToolFormDialog } from './ToolFormDialog'
@@ -16,32 +17,34 @@ type ToolManagerProps = {
   onChanged: () => Promise<void>
 }
 
-type Pending = { kind: 'archive' | 'restore' | 'delete'; tool: ToolWithCategory }
+type Pending = {
+  kind: 'archive' | 'restore' | 'delete'
+  tool: ToolWithCategory
+}
 
 export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) {
   // Hapus permanen hanya super admin — dan RLS menegakkannya lagi di server.
   const canDelete = usePermission('catalog.delete')
+  const { t } = useI18n()
   const [editing, setEditing] = useState<ToolWithCategory | null>(null)
   const [adding, setAdding] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
 
   const confirmCopy = {
     archive: {
-      title: 'Arsipkan tool ini?',
-      confirmLabel: 'Arsipkan',
-      body: (tool: ToolWithCategory) =>
-        `${tool.name} hilang dari katalog publik, tapi datanya tetap tersimpan dan bisa dipulihkan kapan saja.`,
+      title: t('console.confirmArchive.title'),
+      confirmLabel: t('console.confirmArchive.action'),
+      body: (tool: ToolWithCategory) => t('console.confirmArchive.body', { name: tool.name }),
     },
     restore: {
-      title: 'Pulihkan tool ini?',
-      confirmLabel: 'Pulihkan',
-      body: (tool: ToolWithCategory) => `${tool.name} kembali tampil di katalog dengan status aktif.`,
+      title: t('console.confirmRestore.title'),
+      confirmLabel: t('console.confirmRestore.action'),
+      body: (tool: ToolWithCategory) => t('console.confirmRestore.body', { name: tool.name }),
     },
     delete: {
-      title: 'Hapus permanen tool ini?',
-      confirmLabel: 'Hapus permanen',
-      body: (tool: ToolWithCategory) =>
-        `${tool.name} dan seluruh catatan pemakaiannya dihapus dan tidak bisa dikembalikan. Arsipkan saja bila kamu hanya ingin menyembunyikannya.`,
+      title: t('console.confirmDelete.title'),
+      confirmLabel: t('console.confirmDelete.action'),
+      body: (tool: ToolWithCategory) => t('console.confirmDelete.body', { name: tool.name }),
     },
   }
 
@@ -53,7 +56,7 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
         ? await deleteTool(tool.id)
         : await setToolStatus(tool.id, kind === 'archive' ? 'archived' : 'active')
 
-    if (!result.ok) return result.message
+    if (!result.ok) return t(`error.write.${result.code}`)
     await onChanged()
     return null
   }
@@ -61,25 +64,23 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-xl">Tool</h2>
+        <h2 className="text-xl">{t('console.tools')}</h2>
         <Button size="sm" disabled={categories.length === 0} onClick={() => setAdding(true)}>
           <Plus aria-hidden />
-          Tambah tool
+          {t('console.addTool')}
         </Button>
       </div>
 
       {tools.length === 0 ? (
         <EmptyState
-          title="Katalog masih kosong"
+          title={t('console.toolsEmpty.title')}
           description={
-            categories.length === 0
-              ? 'Buat kategori lebih dulu, lalu daftarkan tool QHSE pertama ke dalamnya.'
-              : 'Daftarkan tool QHSE pertama: beri nama, kategori, dan alamat https tujuannya.'
+            categories.length === 0 ? t('console.toolsEmpty.needCategory') : t('console.toolsEmpty.body')
           }
           action={
             categories.length > 0 ? (
               <Button size="sm" onClick={() => setAdding(true)}>
-                Tambah tool
+                {t('console.addTool')}
               </Button>
             ) : undefined
           }
@@ -95,19 +96,37 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
               >
                 <ToolIcon name={tool.icon} className="size-4 text-text-subtle" />
                 <span className="min-w-40 flex-1 text-sm text-text">{tool.name}</span>
-                <span className="font-mono text-xs text-text-subtle">{tool.category?.name ?? 'Tanpa kategori'}</span>
+                <span className="font-mono text-xs text-text-subtle">
+                  {tool.category?.name ?? t('catalog.noCategory')}
+                </span>
                 <StatusBadge status={tool.status} />
-                <span className="font-mono text-xs text-text-subtle">{tool.opens}× dibuka</span>
+                <span className="font-mono text-xs text-text-subtle">
+                  {t('console.openedTimes', { count: tool.opens })}
+                </span>
 
                 <span className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" aria-label={`Ubah ${tool.name}`} onClick={() => setEditing(tool)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('console.edit', { name: tool.name })}
+                    onClick={() => setEditing(tool)}
+                  >
                     <Pencil aria-hidden />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={archived ? `Pulihkan ${tool.name}` : `Arsipkan ${tool.name}`}
-                    onClick={() => setPending({ kind: archived ? 'restore' : 'archive', tool })}
+                    aria-label={
+                      archived
+                        ? t('console.restore', { name: tool.name })
+                        : t('console.archive', { name: tool.name })
+                    }
+                    onClick={() =>
+                      setPending({
+                        kind: archived ? 'restore' : 'archive',
+                        tool,
+                      })
+                    }
                   >
                     {archived ? <ArchiveRestore aria-hidden /> : <Archive aria-hidden />}
                   </Button>
@@ -115,7 +134,7 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Hapus permanen ${tool.name}`}
+                      aria-label={t('console.deleteTool', { name: tool.name })}
                       onClick={() => setPending({ kind: 'delete', tool })}
                     >
                       <Trash2 aria-hidden />
@@ -129,7 +148,12 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
       )}
 
       {adding ? (
-        <ToolFormDialog tool={null} categories={categories} onClose={() => setAdding(false)} onSaved={onChanged} />
+        <ToolFormDialog
+          tool={null}
+          categories={categories}
+          onClose={() => setAdding(false)}
+          onSaved={onChanged}
+        />
       ) : null}
       {editing ? (
         <ToolFormDialog

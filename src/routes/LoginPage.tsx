@@ -6,19 +6,23 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import type { LoginErrorCode } from '@/features/auth/auth-context'
 import { useAuth } from '@/features/auth/useAuth'
+import { useI18n } from '@/features/i18n/useI18n'
 
 type LocationState = { from?: string }
+type FormErrorCode = LoginErrorCode | 'empty'
 
 export function LoginPage() {
   const { status, signIn } = useAuth()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as LocationState | null)?.from ?? '/'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<FormErrorCode | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   if (status === 'authenticated') {
@@ -31,34 +35,32 @@ export function LoginPage() {
 
     // Validasi client; server tetap memvalidasi ulang (governance/01 rule 15).
     if (!email.trim() || !password) {
-      setError('Isi email dan kata sandi lebih dulu.')
+      setError('empty')
       return
     }
 
     setSubmitting(true)
-    try {
-      await signIn(email.trim(), password)
-      navigate(from, { replace: true })
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Masuk gagal. Coba lagi sebentar lagi.')
-    } finally {
-      setSubmitting(false)
+    const result = await signIn(email.trim(), password)
+    setSubmitting(false)
+
+    if (!result.ok) {
+      setError(result.code)
+      return
     }
+    navigate(from, { replace: true })
   }
 
   return (
     <FadeIn className="mx-auto w-full max-w-md">
       <Card>
         <CardHeader>
-          <CardTitle>Masuk ke hub</CardTitle>
-          <CardDescription>
-            Pakai akun yang sudah didaftarkan admin. Katalog publik tetap bisa dibuka tanpa masuk.
-          </CardDescription>
+          <CardTitle>{t('login.title')}</CardTitle>
+          <CardDescription>{t('login.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="flex flex-col gap-5" onSubmit={(event) => void handleSubmit(event)} noValidate>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('login.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -67,12 +69,12 @@ export function LoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 aria-invalid={Boolean(error) || undefined}
-                placeholder="nama@perusahaan.co.id"
+                placeholder={t('login.emailPlaceholder')}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Kata sandi</Label>
+              <Label htmlFor="password">{t('login.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -83,17 +85,16 @@ export function LoginPage() {
               />
             </div>
 
-            {error ? <ErrorState title="Belum bisa masuk" description={error} /> : null}
+            {error ? (
+              <ErrorState title={t('login.errorTitle')} description={t(`login.error.${error}`)} />
+            ) : null}
 
             <Button type="submit" size="lg" loading={submitting} disabled={status === 'unavailable'}>
-              Masuk
+              {t('login.submit')}
             </Button>
 
             {status === 'unavailable' ? (
-              <p className="text-sm text-text-muted">
-                Koneksi Supabase belum dikonfigurasi. Isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY di .env, lalu
-                jalankan ulang dev server.
-              </p>
+              <p className="text-sm text-text-muted">{t('login.envMissing')}</p>
             ) : null}
           </form>
         </CardContent>

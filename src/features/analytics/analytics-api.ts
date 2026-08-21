@@ -1,6 +1,11 @@
 import { supabase } from '@/lib/supabase'
 
-export type RecentOpensResult = { count: number | null; error: string | null }
+export type AnalyticsErrorCode = 'logs_failed'
+
+export type RecentOpensResult = {
+  count: number | null
+  error: AnalyticsErrorCode | null
+}
 
 /**
  * Jumlah peluncuran dalam N hari terakhir dari `open_logs`.
@@ -17,7 +22,7 @@ export async function fetchRecentOpens(days = 30): Promise<RecentOpensResult> {
     .gte('opened_at', since)
 
   if (error) {
-    return { count: null, error: 'Log pemakaian tidak bisa dibaca. Coba muat ulang halaman.' }
+    return { count: null, error: 'logs_failed' }
   }
   return { count: count ?? 0, error: null }
 }
