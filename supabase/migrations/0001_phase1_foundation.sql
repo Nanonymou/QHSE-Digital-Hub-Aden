@@ -109,7 +109,11 @@ security definer
 set search_path = public
 as $$
 begin
-  if public.is_super_admin() then
+  -- auth.uid() null = konteks back-office (SQL Editor / service role), bukan
+  -- permintaan API: di sanalah super admin pertama dipromosikan. Aman karena
+  -- policy UPDATE profiles hanya untuk role `authenticated`, sehingga pemanggil
+  -- anonim tidak pernah sampai ke trigger ini.
+  if auth.uid() is null or public.is_super_admin() then
     return new;
   end if;
 

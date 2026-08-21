@@ -86,9 +86,15 @@ begin
     new.updated_by := auth.uid();
   else
     new.created_by := old.created_by;
-    new.updated_by := auth.uid();
-    -- `opens` hanya boleh berubah lewat RPC (yang memakai role definer, bukan jalur ini).
-    new.opens := old.opens;
+    -- `opens` hanya boleh berubah lewat increment_tool_opens, yang menyalakan
+    -- penanda transaksi di bawah ini. Jalur UPDATE biasa selalu dikembalikan,
+    -- jadi counter tidak bisa dimanipulasi lewat payload client.
+    if coalesce(current_setting('app.opens_bump', true), '') = '1' then
+      new.updated_by := old.updated_by; -- peluncuran bukan perubahan editorial
+    else
+      new.updated_by := auth.uid();
+      new.opens := old.opens;
+    end if;
   end if;
   return new;
 end;
@@ -122,6 +128,10 @@ as $$
 declare
   affected integer;
 begin
+  -- Penanda transaksi-lokal: memberi tahu trigger audit bahwa kenaikan `opens`
+  -- ini memang berasal dari RPC, bukan dari payload client.
+  perform set_config('app.opens_bump', '1', true);
+
   update public.tools t
      set opens = t.opens + 1
    where t.id = increment_tool_opens.tool_id
@@ -135,6 +145,8 @@ begin
   end if;
 
   insert into public.open_logs (tool_id) values (increment_tool_opens.tool_id);
+
+  perform set_config('app.opens_bump', '0', true);
 end;
 $$;
 

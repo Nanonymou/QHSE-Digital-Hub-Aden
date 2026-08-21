@@ -20,17 +20,12 @@ comment on column public.tools.allowed_roles is
 
 -- Konsistensi: tool role_scoped tanpa role sama sekali akan tak terlihat siapa pun
 -- (kecuali admin) — itu hampir pasti salah isi, jadi ditolak di server.
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'tools_role_scope_needs_roles'
-  ) then
-    alter table public.tools
-      add constraint tools_role_scope_needs_roles
-      check (visibility <> 'role_scoped' or array_length(allowed_roles, 1) >= 1);
-  end if;
-end
-$$;
+-- Catatan: array_length('{}', 1) mengembalikan NULL, dan CHECK bernilai NULL
+-- dianggap LOLOS — karena itu dipakai cardinality(), yang mengembalikan 0.
+alter table public.tools drop constraint if exists tools_role_scope_needs_roles;
+alter table public.tools
+  add constraint tools_role_scope_needs_roles
+  check (visibility <> 'role_scoped' or cardinality(allowed_roles) >= 1);
 
 -- Tool publik tidak perlu menyimpan daftar role; bersihkan agar datanya jujur.
 create or replace function public.normalize_tool_visibility()
