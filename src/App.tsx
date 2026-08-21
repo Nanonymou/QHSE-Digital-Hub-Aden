@@ -5,6 +5,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth'
 import { AppConfigProvider } from '@/features/config/AppConfigProvider'
 import { ThemeProvider } from '@/features/theme/ThemeProvider'
 import { AccountPage } from '@/routes/AccountPage'
+import { ConsolePage } from '@/routes/ConsolePage'
 import { DashboardPage } from '@/routes/DashboardPage'
 import { ForbiddenPage } from '@/routes/ForbiddenPage'
 import { LoginPage } from '@/routes/LoginPage'
@@ -20,6 +21,14 @@ export default function App() {
               <Route element={<AppShell />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="masuk" element={<LoginPage />} />
+                <Route
+                  path="console"
+                  element={
+                    <RequireAuth permission="catalog.write">
+                      <ConsolePage />
+                    </RequireAuth>
+                  }
+                />
                 <Route
                   path="akun"
                   element={
