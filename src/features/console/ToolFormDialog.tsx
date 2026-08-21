@@ -13,9 +13,13 @@ import type { TranslationKey } from '@/features/i18n/i18n-context'
 import { useI18n } from '@/features/i18n/useI18n'
 import {
   ACCENT_KEYS,
+  ROLES,
   TOOL_STATUSES,
+  VISIBILITIES,
   type AccentKey,
   type Category,
+  type Role,
+  type Visibility,
   type ToolStatus,
   type ToolWithCategory,
 } from '@/types/database'
@@ -45,6 +49,8 @@ function initialInput(tool: ToolWithCategory | null, categories: Category[]): To
     status: tool?.status ?? 'active',
     tags: tool?.tags ?? [],
     release_date: tool?.release_date ?? null,
+    visibility: tool?.visibility ?? 'public',
+    allowed_roles: tool?.allowed_roles ?? [],
   }
 }
 
@@ -67,6 +73,8 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
     if (!name) return setError('console.form.error.name')
     if (!form.category_id) return setError('console.form.error.category')
     if (!isSafeToolUrl(form.target_url.trim())) return setError('console.form.error.url')
+    if (form.visibility === 'role_scoped' && form.allowed_roles.length === 0)
+      return setError('visibility.error.roles')
 
     const payload: ToolInput = {
       ...form,
@@ -216,6 +224,53 @@ export function ToolFormDialog({ tool, categories, onClose, onSaved }: ToolFormD
               />
             </div>
           </div>
+
+          {/* Akses ditegakkan RLS; pilihan di sini hanya menentukan datanya. */}
+          <fieldset className="flex flex-col gap-3 rounded-md border border-hairline p-4">
+            <legend className="px-1 text-sm font-medium text-text-muted">{t('visibility.heading')}</legend>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="tool-visibility">{t('visibility.field')}</Label>
+              <Select
+                id="tool-visibility"
+                value={form.visibility}
+                onChange={(event) => set('visibility', event.target.value as Visibility)}
+              >
+                {VISIBILITIES.map((item) => (
+                  <option key={item} value={item}>
+                    {t(`visibility.${item}`)}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            {form.visibility === 'role_scoped' ? (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-medium text-text-muted">{t('visibility.roles')}</span>
+                <div className="flex flex-wrap gap-3">
+                  {ROLES.map((role) => (
+                    <label key={role} className="flex items-center gap-2 text-sm text-text-muted">
+                      <input
+                        type="checkbox"
+                        className="size-4 accent-[rgb(var(--primary))]"
+                        checked={form.allowed_roles.includes(role)}
+                        onChange={(event) =>
+                          set(
+                            'allowed_roles',
+                            event.target.checked
+                              ? [...form.allowed_roles, role]
+                              : form.allowed_roles.filter((item: Role) => item !== role),
+                          )
+                        }
+                      />
+                      {t(`role.${role}`)}
+                    </label>
+                  ))}
+                </div>
+                <span className="text-xs text-text-subtle">{t('visibility.hint')}</span>
+              </div>
+            ) : null}
+          </fieldset>
 
           {error ? <ErrorState title={t('common.notSaved')} description={t(error)} /> : null}
 

@@ -255,6 +255,16 @@ export const id = {
   'offline.body':
     'Katalog yang terakhir dimuat tetap bisa dibaca. Membuka tool dan menyimpan perubahan butuh koneksi.',
 
+  'visibility.heading': 'Akses',
+  'visibility.field': 'Siapa yang boleh melihat',
+  'visibility.public': 'Semua orang',
+  'visibility.role_scoped': 'Role tertentu saja',
+  'visibility.roles': 'Role yang diizinkan',
+  'visibility.hint': 'Admin dan super admin selalu melihat semua tool agar katalog tetap bisa dikelola.',
+  'visibility.badge': 'Terbatas',
+  'visibility.badgeTitle': 'Hanya untuk role: {roles}',
+  'visibility.error.roles': 'Pilih minimal satu role, atau ubah aksesnya menjadi semua orang.',
+
   'team.title': 'Tim QHSE',
   'team.description': 'Wajah dan kontak orang-orang yang menjalankan program QHSE.',
   'team.loading': 'Memuat data tim',

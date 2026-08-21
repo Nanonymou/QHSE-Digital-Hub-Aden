@@ -249,6 +249,16 @@ export const en: Dictionary = {
   'offline.body':
     'The catalog you loaded last is still readable. Opening tools and saving changes need a connection.',
 
+  'visibility.heading': 'Access',
+  'visibility.field': 'Who can see this',
+  'visibility.public': 'Everyone',
+  'visibility.role_scoped': 'Selected roles only',
+  'visibility.roles': 'Allowed roles',
+  'visibility.hint': 'Admins and super admins always see every tool so the catalog stays manageable.',
+  'visibility.badge': 'Restricted',
+  'visibility.badgeTitle': 'Only for roles: {roles}',
+  'visibility.error.roles': 'Pick at least one role, or set the access back to everyone.',
+
   'team.title': 'QHSE team',
   'team.description': 'The faces and contacts of the people running the QHSE programme.',
   'team.loading': 'Loading team data',

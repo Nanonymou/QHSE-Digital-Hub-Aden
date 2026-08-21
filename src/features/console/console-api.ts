@@ -1,6 +1,6 @@
 import type { PostgrestError } from '@supabase/supabase-js'
 import { requireSupabase } from '@/lib/supabase'
-import type { AccentKey, ToolStatus } from '@/types/database'
+import type { AccentKey, Role, ToolStatus, Visibility } from '@/types/database'
 
 /** Kode, bukan kalimat — komponen menerjemahkannya lewat kamus i18n. */
 export type WriteErrorCode = 'denied' | 'slugTaken' | 'categoryInUse' | 'constraint' | 'network' | 'unknown'
@@ -17,6 +17,9 @@ export type ToolInput = {
   status: ToolStatus
   tags: string[]
   release_date: string | null
+  visibility: Visibility
+  /** Diabaikan server saat visibility = 'public' (dinormalkan trigger). */
+  allowed_roles: Role[]
 }
 
 export type CategoryInput = {

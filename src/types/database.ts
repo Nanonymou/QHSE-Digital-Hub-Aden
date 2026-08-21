@@ -23,6 +23,9 @@ export type AppConfigRow = {
 export const TOOL_STATUSES = ['active', 'beta', 'maintenance', 'coming_soon', 'archived'] as const
 export type ToolStatus = (typeof TOOL_STATUSES)[number]
 
+export const VISIBILITIES = ['public', 'role_scoped'] as const
+export type Visibility = (typeof VISIBILITIES)[number]
+
 export const ACCENT_KEYS = ['orange', 'green', 'navy', 'yellow', 'sky', 'pink'] as const
 export type AccentKey = (typeof ACCENT_KEYS)[number]
 
@@ -46,6 +49,9 @@ export type Tool = {
   tags: string[]
   release_date: string | null
   opens: number
+  visibility: Visibility
+  /** Role yang boleh melihat tool saat visibility = 'role_scoped'. */
+  allowed_roles: Role[]
 }
 
 /** Tool yang sudah dipasangkan dengan kategorinya untuk keperluan tampilan. */

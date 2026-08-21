@@ -232,6 +232,16 @@ export const zh: Dictionary = {
   'offline.title': '你目前处于离线状态',
   'offline.body': '上次加载的目录仍可查看。打开工具和保存修改需要网络连接。',
 
+  'visibility.heading': '访问权限',
+  'visibility.field': '谁可以看到',
+  'visibility.public': '所有人',
+  'visibility.role_scoped': '仅限指定角色',
+  'visibility.roles': '允许的角色',
+  'visibility.hint': '管理员和超级管理员始终可以看到全部工具，以便管理目录。',
+  'visibility.badge': '受限',
+  'visibility.badgeTitle': '仅限角色：{roles}',
+  'visibility.error.roles': '请至少选择一个角色，或将访问权限改回所有人。',
+
   'team.title': 'QHSE 团队',
   'team.description': '负责 QHSE 工作的同事，以及可以联系到他们的方式。',
   'team.loading': '正在加载团队数据',

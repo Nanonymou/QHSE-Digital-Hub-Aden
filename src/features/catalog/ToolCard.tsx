@@ -1,4 +1,4 @@
-import { ExternalLink, Info } from 'lucide-react'
+import { ExternalLink, Info, Lock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/features/i18n/useI18n'
@@ -44,7 +44,18 @@ export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
         >
           <ToolIcon name={tool.icon} className="size-5" />
         </span>
-        <StatusBadge status={tool.status} />
+        <span className="flex items-center gap-1.5">
+          {tool.visibility === 'role_scoped' ? (
+            <Badge
+              className="border-line/15 bg-surface-elevated text-text-muted"
+              title={t('visibility.badgeTitle', { roles: tool.allowed_roles.map((role) => t(`role.${role}`)).join(', ') })}
+            >
+              <Lock aria-hidden className="size-3" />
+              {t('visibility.badge')}
+            </Badge>
+          ) : null}
+          <StatusBadge status={tool.status} />
+        </span>
       </div>
 
       <div className="flex flex-col gap-1">

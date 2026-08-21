@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Archive, ArchiveRestore, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, Lock, Pencil, Plus, Trash2 } from 'lucide-react'
 import { EmptyState } from '@/components/state/EmptyState'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { StatusBadge } from '@/features/catalog/StatusBadge'
@@ -99,6 +100,17 @@ export function ToolManager({ tools, categories, onChanged }: ToolManagerProps) 
                 <span className="font-mono text-xs text-text-subtle">
                   {tool.category?.name ?? t('catalog.noCategory')}
                 </span>
+                {tool.visibility === 'role_scoped' ? (
+                  <Badge
+                    className="border-line/15 bg-surface-elevated text-text-muted"
+                    title={t('visibility.badgeTitle', {
+                      roles: tool.allowed_roles.map((role) => t(`role.${role}`)).join(', '),
+                    })}
+                  >
+                    <Lock aria-hidden className="size-3" />
+                    {t('visibility.badge')}
+                  </Badge>
+                ) : null}
                 <StatusBadge status={tool.status} />
                 <span className="font-mono text-xs text-text-subtle">
                   {t('console.openedTimes', { count: tool.opens })}
