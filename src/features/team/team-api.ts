@@ -13,10 +13,6 @@ const COLUMNS =
  * Baris yang sampai ke client sudah disaring RLS: pengunjung anonim hanya
  * menerima anggota aktif yang disetujui tampil publik (features/14 § Privasi).
  */
-/**
- * Baris yang sampai ke client sudah disaring RLS: pengunjung anonim hanya
- * menerima anggota aktif yang disetujui tampil publik (features/14 § Privasi).
- */
 export async function fetchTeam(): Promise<TeamResult> {
   if (!supabase) return { members: [], error: null }
 

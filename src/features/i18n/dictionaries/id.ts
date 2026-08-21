@@ -247,6 +247,14 @@ export const id = {
   'branding.error.productName': 'Nama produk wajib diisi.',
   'branding.error.logoUrl': 'URL logo harus diawali https://.',
 
+  'pwa.updateTitle': 'Versi baru tersedia',
+  'pwa.updateBody': 'Muat ulang untuk memakai versi terbaru. Simpan dulu isian yang sedang kamu kerjakan.',
+  'pwa.reload': 'Muat ulang sekarang',
+  'pwa.later': 'Nanti saja',
+  'offline.title': 'Kamu sedang offline',
+  'offline.body':
+    'Katalog yang terakhir dimuat tetap bisa dibaca. Membuka tool dan menyimpan perubahan butuh koneksi.',
+
   'team.title': 'Tim QHSE',
   'team.description': 'Wajah dan kontak orang-orang yang menjalankan program QHSE.',
   'team.loading': 'Memuat data tim',

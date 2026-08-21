@@ -225,6 +225,13 @@ export const zh: Dictionary = {
   'branding.error.productName': '产品名称为必填项。',
   'branding.error.logoUrl': 'Logo 网址必须以 https:// 开头。',
 
+  'pwa.updateTitle': '有新版本可用',
+  'pwa.updateBody': '重新加载即可使用最新版本。请先保存正在填写的内容。',
+  'pwa.reload': '立即重新加载',
+  'pwa.later': '稍后再说',
+  'offline.title': '你目前处于离线状态',
+  'offline.body': '上次加载的目录仍可查看。打开工具和保存修改需要网络连接。',
+
   'team.title': 'QHSE 团队',
   'team.description': '负责 QHSE 工作的同事，以及可以联系到他们的方式。',
   'team.loading': '正在加载团队数据',

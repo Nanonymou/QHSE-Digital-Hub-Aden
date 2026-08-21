@@ -30,7 +30,7 @@ export const STATUS_META: Record<ToolStatus, StatusMeta> = {
     warningKey: 'status.maintenance.warning',
   },
   coming_soon: {
-    className: 'border-line/20 bg-surface-elevated text-text-subtle',
+    className: 'border-line/20 bg-surface-elevated text-text-muted',
     launchable: false,
     labelKey: 'status.coming_soon.label',
     warningKey: 'status.coming_soon.warning',

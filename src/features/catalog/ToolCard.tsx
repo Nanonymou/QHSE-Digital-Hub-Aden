@@ -26,9 +26,9 @@ export function ToolCard({ tool, onLaunch, onDetail }: ToolCardProps) {
       className={cn(
         'group relative flex h-full flex-col gap-4 overflow-hidden rounded-lg border border-hairline bg-surface p-5',
         'shadow-card transition-[transform,box-shadow] duration-micro ease-out-soft',
-        launchable
-          ? 'hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0'
-          : 'opacity-80',
+        // Kartu "segera hadir" tidak diredupkan: badge dan tombol nonaktif sudah
+        // menyampaikan statusnya, sedangkan meredupkan teks merusak kontras AA.
+        launchable ? 'hover:-translate-y-0.5 hover:shadow-lift motion-reduce:hover:translate-y-0' : null,
       )}
     >
       {/* Garis accent menegas saat hover — satu-satunya dekorasi kartu. */}

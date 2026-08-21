@@ -241,6 +241,14 @@ export const en: Dictionary = {
   'branding.error.productName': 'Product name is required.',
   'branding.error.logoUrl': 'The logo URL must start with https://.',
 
+  'pwa.updateTitle': 'A new version is available',
+  'pwa.updateBody': 'Reload to use the latest version. Save whatever you are typing first.',
+  'pwa.reload': 'Reload now',
+  'pwa.later': 'Later',
+  'offline.title': 'You are offline',
+  'offline.body':
+    'The catalog you loaded last is still readable. Opening tools and saving changes need a connection.',
+
   'team.title': 'QHSE team',
   'team.description': 'The faces and contacts of the people running the QHSE programme.',
   'team.loading': 'Loading team data',

@@ -17,7 +17,7 @@
   --shadow: 60 38 24;
   --text: 28 20 16; /* #1C1410 */
   --text-muted: 92 78 68; /* #5C4E44 */
-  --text-subtle: 122 106 94; /* #7A6A5E */
+  --text-subtle: 107 91 80; /* #6B5B50 — dinaikkan agar label kecil lolos AA */
 
   /* PRIMARY — oren gelap (identitas) */
   --primary: 234 88 12; /* #EA580C */
@@ -26,10 +26,10 @@
   --primary-contrast: 255 255 255;
 
   /* status */
-  --ok: 21 128 61; /* #15803D */
-  --warn: 161 98 7; /* #A16207 */
+  --ok: 22 101 52; /* #166534 — digelapkan agar badge 12px lolos AA di tema terang */
+  --warn: 133 77 14; /* #854D0E */
   --danger: 185 28 28; /* #B91C1C */
-  --info: 2 132 199; /* #0284C7 */
+  --info: 7 89 133; /* #075985 */
 
   --ring: 234 88 12;
 }
@@ -45,7 +45,7 @@
   --shadow: 0 0 0;
   --text: 245 239 234; /* #F5EFEA */
   --text-muted: 184 169 158; /* #B8A99E */
-  --text-subtle: 122 109 99; /* #7A6D63 */
+  --text-subtle: 154 140 129; /* #9A8C81 — dinaikkan agar label kecil lolos AA */
 
   --primary: 234 88 12; /* #EA580C */
   --primary-deep: 194 65 11; /* #C2410C */

@@ -19,6 +19,10 @@ const EMPTY: CatalogData = { tools: [], categories: [] }
  * Katalog dibaca dalam satu putaran: kategori (untuk urutan & label) dan tool.
  * Baris archived tidak pernah sampai ke client publik — disaring RLS, bukan di sini.
  */
+/**
+ * Katalog dibaca dalam satu putaran: kategori (untuk urutan & label) dan tool.
+ * Baris archived tidak pernah sampai ke client publik — disaring RLS, bukan di sini.
+ */
 export async function fetchCatalog(): Promise<CatalogResult> {
   if (!supabase) return { data: EMPTY, error: null }
 
@@ -26,9 +30,7 @@ export async function fetchCatalog(): Promise<CatalogResult> {
     supabase.from('categories').select('id, name, slug, display_order, active').order('display_order'),
     supabase
       .from('tools')
-      .select(
-        'id, name, category_id, description, target_url, icon, accent, status, tags, release_date, opens',
-      )
+      .select('id, name, category_id, description, target_url, icon, accent, status, tags, release_date, opens')
       .order('name'),
   ])
 

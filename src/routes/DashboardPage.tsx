@@ -4,6 +4,7 @@ import { AdminInsights } from '@/features/analytics/AdminInsights'
 import { KpiRow } from '@/features/analytics/KpiRow'
 import { useAuth, usePermission } from '@/features/auth/useAuth'
 import { CatalogSection } from '@/features/catalog/CatalogSection'
+import { HeroConstellation } from '@/features/catalog/HeroConstellation'
 import { useCatalog } from '@/features/catalog/useCatalog'
 import { useAppConfig } from '@/features/config/useAppConfig'
 import { useI18n } from '@/features/i18n/useI18n'
@@ -18,9 +19,14 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <FadeIn className="flex flex-col gap-3">
-        <h1 className="text-3xl">{branding.product_name}</h1>
-        {branding.tagline ? <p className="max-w-prose text-text-muted">{branding.tagline}</p> : null}
+      {/* Hero = tesis hub: jaringan tool. Satu elemen signature, sisanya tenang. */}
+      <FadeIn className="relative isolate -mx-4 overflow-hidden rounded-lg px-4 py-10 sm:-mx-6 sm:px-6 sm:py-14">
+        <HeroConstellation tools={catalog.tools} />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-accent-sky/10" />
+        <div className="relative flex flex-col gap-3">
+          <h1 className="text-4xl">{branding.product_name}</h1>
+          {branding.tagline ? <p className="max-w-prose text-text-muted">{branding.tagline}</p> : null}
+        </div>
       </FadeIn>
 
       {status === 'unavailable' ? (
